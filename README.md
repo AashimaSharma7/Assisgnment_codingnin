@@ -1,57 +1,40 @@
 # AI Excel Interviewer
 
-An AI-powered API for conducting **structured Excel mock interviews**. This system simulates a realistic interview process by managing introductions, asking dynamically generated questions with increasing difficulty, evaluating candidate answers, and providing a comprehensive feedback report.
-
-The project leverages **FastAPI**, **OpenAI GPT-4o**, and modular tools for chat, questions, evaluation, and feedback. It is fully containerized for easy deployment with Docker and can be hosted on platforms like **Render**.
-
----
+An API for conducting structured Excel mock interviews using AI. The system manages introductions, asks dynamic questions, evaluates answers, and provides constructive feedback.
 
 ## Features
 
-* **Structured Interview Flow**: Introduction → Dynamic Questions → Evaluation → Feedback.
-* **Dynamic Question Generation**: AI adapts questions based on previous answers.
-* **Evaluation of Responses**: Highlights strengths and areas for improvement.
-* **Feedback Report**: Generates a final performance summary at the end of the interview.
-* **REST API Endpoints**: Easily integrate with web or mobile applications.
-* **Dockerized Deployment**: Run locally or deploy on cloud platforms (Render, AWS, Azure, etc.).
-
----
+* Structured interview flow with increasing question difficulty
+* Dynamic question generation and probing for incomplete answers
+* Evaluation of candidate responses
+* Final feedback report summarizing strengths and areas for improvement
+* REST API endpoints for integration
+* Ready for deployment with Docker and Render
 
 ## Project Structure
 
 ```
-ai-excel-interviewer/
-│
-├── main.py                     # FastAPI entry point
-├── requirements.txt            # Python dependencies
-├── Dockerfile                  # Docker setup
-├── docker-compose.yml          # Local dev setup with Docker
-├── .env                        # Environment variables (API keys)
-├── config.py                   # Configuration for API keys and settings
-├── README.md                   # Project documentation
-│
-├── core/
-│   └── interviewer_agents.py   # Orchestrator for interview flow and feedback
-│
-├── models/
-│   ├── request_models.py       # Request models for API
-│   └── response_models.py      # Response models for API
-│
-├── tools/
-│   ├── chat_tool.py            # Handles greetings and chat responses
-│   ├── question_tool.py        # Generates dynamic interview questions
-│   ├── evaluation_tool.py      # Evaluates candidate responses
-│   └── feedback_tool.py        # Generates final feedback report
-│
-└── agents/                     # Local AI orchestration module
-    ├── __init__.py
-    ├── run.py
-    └── models/
+.env
+.gitignore
+config.py
+main.py
+requirements.txt
+Dockerfile
+core/
+    interviewer_agents.py
+models/
+    request_models.py
+    response_models.py
+tools/
+    chat_tool.py
+    evaluation_tool.py
+    feedback_tool.py
+    question_tool.py
 ```
 
----
-## Architecture Diagram
+## System Architecture
 
+```
 +-------------------+       +-------------------+
 |   User/Client     |       |   FastAPI Server  |
 | (e.g., Web/App)   | <---> | - /v1/query       |
@@ -75,47 +58,81 @@ ai-excel-interviewer/
     |  Chat Tool   |    | Question Tool |    |Evaluation Tool|    | Feedback Tool |
     | (GPT-4o)     |    | (LiteLLM/GPT) |    | (Simple Logic)|    | (Static Text) |
     +---------------+    +---------------+    +---------------+    +---------------+
+```
 
 ## Getting Started
 
 ### Prerequisites
 
-* Python 3.8+
+* Python 3.9+
 * [pip](https://pip.pypa.io/en/stable/)
-* Docker (for containerized deployment)
-* Render account (optional, for cloud deployment)
-
----
+* OpenAI API key
 
 ### Installation (Local)
 
 1. Clone the repository:
 
-```bash
-git clone <your-repo-url>
-cd ai-excel-interviewer
-```
+   ```sh
+   git clone <your-repo-url>
+   cd ai-excel-interviewer
+   ```
 
-2. Install Python dependencies:
+2. Install dependencies:
 
-```bash
-pip install -r requirements.txt
-```
+   ```sh
+   pip install -r requirements.txt
+   ```
 
-3. Create a `.env` file in the root directory with your API keys:
+3. Set up your `.env` file with API keys:
 
-```
-OPENAI_API_KEY="your-openai-api-key"
-LOG_LEVEL=DEBUG
-```
+   ```
+   OPENAI_API_KEY="your-openai-key"
+   LOG_LEVEL=DEBUG
+   ```
 
 4. Start the FastAPI server:
 
-```bash
-uvicorn main:app --reload
-```
+   ```sh
+   uvicorn main:app --reload
+   ```
 
-API will be available at `http://localhost:8000`.
+   The API will be available at `http://localhost:8000`.
+
+---
+
+## Docker Setup
+
+1. Build the Docker image:
+
+   ```sh
+   docker build -t ai-excel-interviewer .
+   ```
+
+2. Run the container:
+
+   ```sh
+   docker run -d -p 8000:8000 --env-file .env ai-excel-interviewer
+   ```
+
+   The API will be available at `http://localhost:8000`.
+
+---
+
+## Deployment on Render
+
+1. Push your code to GitHub/GitLab.
+
+2. In [Render](https://render.com), create a **New Web Service**.
+
+3. Connect your repo and configure:
+
+   * **Environment**: Docker
+   * **Build Command**: `docker build -t ai-excel-interviewer .`
+   * **Start Command**: `uvicorn main:app --host 0.0.0.0 --port 8000`
+   * **Port**: `8000`
+   * Add environment variables (like `OPENAI_API_KEY`).
+
+4. Deploy 🎉
 
 ---
 
@@ -123,9 +140,8 @@ API will be available at `http://localhost:8000`.
 
 ### `POST /v1/query`
 
-**Description:** Main entry point for the AI interview. Handles structured interview flow.
-
-**Request Body Example:**
+* **Description:** Main entry point for interacting with the AI Interviewer.
+* **Request Body:**
 
 ```json
 {
@@ -134,11 +150,11 @@ API will be available at `http://localhost:8000`.
 }
 ```
 
-**Response Example:**
+* **Response:**
 
 ```json
 {
-  "response": "Hello, I am your Excel mock interviewer. Are you ready to begin?"
+  "response": "Hi! I am your Excel interviewer..."
 }
 ```
 
@@ -146,121 +162,91 @@ API will be available at `http://localhost:8000`.
 
 ### `POST /feedback-report`
 
-**Description:** Generate a final interview feedback report. Can optionally provide a custom prompt.
-
-**Request Body Example:**
+* **Description:** Generate a final performance summary report.
+* **Request Body:**
 
 ```json
 {
-  "query": "Please summarize my performance",
+  "query": "Give me feedback report",
   "history": [
     {"role": "user", "content": "Hello"},
-    {"role": "assistant", "content": "Hi! Are you ready for the Excel interview?"}
+    {"role": "assistant", "content": "Hello, I am your Excel interviewer..."}
   ]
 }
 ```
 
-**Response Example:**
+* **Response:**
 
 ```json
 {
-  "response": "Interview Summary:\n- You communicated clearly in most answers.\n- Strengths: Teamwork, clarity of thought.\n- Areas for improvement: Provide more structured examples.\nOverall, you performed well in this mock interview."
+  "response": "Interview Summary: ..."
 }
 ```
 
 ---
 
-## Docker Deployment
+## Testing with Postman
 
-### 1. Dockerfile
+Since the backend is deployed independently, you can test endpoints using **Postman**:
 
-```dockerfile
-# Base image
-FROM python:3.12-slim
+1. Open Postman and create a new **POST** request.
 
-# Set working directory
-WORKDIR /app
+2. Use your API URL (local or deployed):
 
-# Copy requirements first for caching
-COPY requirements.txt .
+   * Local: `http://127.0.0.1:8000/v1/query`
+   * Render: `https://<your-service>.onrender.com/v1/query`
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+3. Go to the **Body** tab → Select **raw** → Choose **JSON**.
 
-# Copy project files
-COPY . .
+4. Enter a sample request body:
 
-# Expose FastAPI port
-EXPOSE 8000
+   ```json
+   {
+     "query": "Hello",
+     "history": []
+   }
+   ```
 
-# Start server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+5. Hit **Send** and check the response.
 
-### 2. Docker Compose (for local development with auto-reload)
+6. For feedback testing:
 
-```yaml
-version: '3.8'
-services:
-  ai-interviewer:
-    build: .
-    container_name: ai_excel_interviewer
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
+   * Endpoint: `POST /feedback-report`
+   * Request body:
 
-### 3. Build and Run Docker Container
+   ```json
+   {
+     "query": "Give me feedback report",
+     "history": [
+       {"role": "user", "content": "Hello"},
+       {"role": "assistant", "content": "Hello, I am your Excel interviewer..."}
+     ]
+   }
+   ```
 
-```bash
-docker-compose up --build
-```
+   * Response:
 
-API will be available at `http://localhost:8000` with hot-reload.
-
----
-
-## Deploying on Render
-
-Render supports Docker deployments. Steps:
-
-1. Push your repository to GitHub.
-2. Create a new **Web Service** on Render.
-3. Choose **Docker** as the environment.
-4. Set the **Build Command** (optional; Dockerfile handles it).
-5. Add environment variables (`OPENAI_API_KEY`) in the Render dashboard.
-6. Deploy! Your service will be accessible via a public URL.
+   ```json
+   {
+     "response": "Interview Summary: You communicated clearly..."
+   }
+   ```
 
 ---
 
 ## Customization
 
-* **Interview flow:** Modify `core/interviewer_agents.py` for question limits, evaluation, and feedback logic.
-* **Chat behavior:** Adjust `tools/chat_tool.py` for greetings or interaction style.
-* **Question generation:** Change prompts or difficulty logic in `tools/question_tool.py`.
-* **Feedback report:** Update `tools/feedback_tool.py` for more detailed summaries.
-
----
-
-## Environment Variables
-
-| Key              | Description                           |
-| ---------------- | ------------------------------------- |
-| OPENAI\_API\_KEY | OpenAI API key for GPT models         |
-| LOG\_LEVEL       | Logging level (`DEBUG`, `INFO`, etc.) |
+* Interview logic and flow are orchestrated in [`core/interviewer_agents.py`](core/interviewer_agents.py).
+* Modify or extend tools in [`tools/`](tools/) for custom interview logic.
 
 ---
 
 ## License
 
-MIT License
+MIT
 
 ---
 
-## Authors
+## Author
 
-* **Aashima Sharma** – [aashima127s@gmail.com](mailto:aashima127s@gmail.com)
+* [Aashima Sharma](mailto:aashima127s@gmail.com)
