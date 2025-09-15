@@ -1,0 +1,10 @@
+litellm
+fastapi
+uvicorn
+pydantic
+loguru
+openpyxl
+pandas
+openai
+httpx
+
