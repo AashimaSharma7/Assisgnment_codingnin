@@ -8,3 +8,4 @@ pandas
 openai
 httpx
 python-dotenv
+openai-agents
