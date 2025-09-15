@@ -7,4 +7,4 @@ openpyxl
 pandas
 openai
 httpx
-
+python-dotenv
