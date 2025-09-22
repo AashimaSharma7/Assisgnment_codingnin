@@ -145,8 +145,13 @@ tools/
 
 ```json
 {
-  "query": "Hello",
-  "history": []
+  "query": "Hello, yes i am ready",
+  "history": [
+    {
+            "role": "assistant",
+            "content": "hi, im your excel interviewer. are you ready for the interview?"
+    }
+]
 }
 ```
 
@@ -154,7 +159,7 @@ tools/
 
 ```json
 {
-  "response": "Hi! I am your Excel interviewer..."
+  "response": "good! Let's start the interviewe. Here's question 1: In excel what..."
 }
 ```
 
@@ -169,8 +174,8 @@ tools/
 {
   "query": "Give me feedback report",
   "history": [
-    {"role": "user", "content": "Hello"},
-    {"role": "assistant", "content": "Hello, I am your Excel interviewer..."}
+    {"role": "assistant", "content": "Hello, I am your Excel interviewer..."},
+    {"role": "user", "content": "Hello, yeah"},
   ]
 }
 ```
@@ -202,9 +207,14 @@ Since the backend is deployed independently, you can test endpoints using **Post
 
    ```json
    {
-     "query": "Hello",
-     "history": []
-   }
+      "query": "Hello, yes i am ready",
+      "history": [
+            {
+                "role": "assistant",
+                "content": "hi, im your excel interviewer. are you ready for the interview?"
+            }
+        ]
+    }
    ```
 
 5. Hit **Send** and check the response.
@@ -218,8 +228,8 @@ Since the backend is deployed independently, you can test endpoints using **Post
    {
      "query": "Give me feedback report",
      "history": [
-       {"role": "user", "content": "Hello"},
-       {"role": "assistant", "content": "Hello, I am your Excel interviewer..."}
+       {"role": "assistant", "content": "Hello, I am your Excel interviewer..."},
+       {"role": "user", "content": "yes"},
      ]
    }
    ```
