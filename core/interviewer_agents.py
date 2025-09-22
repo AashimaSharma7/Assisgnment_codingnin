@@ -101,16 +101,30 @@ async def process_query(query: str, history: list = None) -> str:
     elif question_count < QUESTION_LIMIT:
         
         logger.info(" Handing off to QuestionAgent (QnA phase)")
-        result = await Runner.run(question_agent, messages)
-        return result.final_output
+        question_result = await Runner.run(question_agent, messages)
+        # return result.final_output
+        logger.info(" Running EvaluationAgent for candidate's latest answer")
+        eval_result = await Runner.run(evaluation_agent, messages)
+        messages.append({"role": "assistant", "content": f"Evaluation: {eval_result.final_output}"})
+
+        ### CHANGED: Return both the next question and the evaluation
+        combined_output = f"{question_result.final_output}\n\n---\nEvaluation of your last answer:\n{eval_result.final_output}"
+        return combined_output
 
     else:
         # Interview complete - Evaluate + Feedback
         logger.info(" Handing off to EvaluationAgent + FeedbackAgent (final phase)")
+        # eval_result = await Runner.run(evaluation_agent, messages)
+        # feedback_result = await Runner.run(feedback_agent, messages + [
+        #     {"role": "assistant", "content": eval_result.final_output}
+        # ])
+        # return feedback_result.final_output
+        # Run evaluation one last time
         eval_result = await Runner.run(evaluation_agent, messages)
-        feedback_result = await Runner.run(feedback_agent, messages + [
-            {"role": "assistant", "content": eval_result.final_output}
-        ])
+        messages.append({"role": "assistant", "content": f"Evaluation: {eval_result.final_output}"})
+
+        # Now pass all evaluations consistently to FeedbackAgent
+        feedback_result = await Runner.run(feedback_agent, messages)
         return feedback_result.final_output
 
 
